@@ -165,7 +165,7 @@ const DB = {
         troop_email: 'troop731@example.com',
         charter_info: 'Serving Scouts Since 1985',
         eagle_info: 'Proud history of Eagle Scout achievements',
-        about_content: `<p>Troop 731 is a youth-led, all-girls Scouts BSA troop dedicated to building character, leadership, and personal fitness in young women ages 11\u201317.</p>
+        about_content: `<p>Troop 731 is a youth-led, all-girls Scouting America troop dedicated to building character, leadership, and personal fitness in young women ages 11\u201317.</p>
 <p>Our Scouts participate in a wide range of outdoor activities including camping, hiking, canoeing, and community service projects. We emphasize the Scout Oath and Scout Law in everything we do.</p>
 <p>Whether your Scout is just crossing over from Cub Scouts or joining for the first time, Troop 731 offers a welcoming and empowering environment to learn, grow, and have fun.</p>`,
       };
