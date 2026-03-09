@@ -218,7 +218,7 @@ const DB = {
       const ins = 'INSERT INTO links (name, url, icon, sort_order) VALUES (?, ?, ?, ?)';
       db.run(ins, ['Scoutbook', 'https://www.scoutbook.scouting.org', '📘', 1]);
       db.run(ins, ['BSA National', 'https://www.scouting.org', '⚜️', 2]);
-      db.run(ins, ['Merit Badge List', 'https://meritbadge.org', '🏅', 3]);
+      db.run(ins, ['Merit Badge List', 'https://www.scouting.org/skills/merit-badges/all/', '🏅', 3]);
     }
 
     const docCount = this.get('SELECT COUNT(*) as c FROM documents').c;
