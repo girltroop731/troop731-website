@@ -14,7 +14,7 @@ ENV DATA_DIR=/data
 VOLUME ["/data"]
 
 RUN addgroup -S app && adduser -S app -G app
-RUN chown -R app:app /app /data
+RUN mkdir -p /data && chown -R app:app /app /data
 USER app
 
 EXPOSE 3000
