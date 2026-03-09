@@ -79,6 +79,7 @@ const DB = {
         password_hash TEXT NOT NULL,
         display_name TEXT,
         role TEXT DEFAULT 'webmaster',
+        force_password_change INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
       CREATE TABLE IF NOT EXISTS announcements (
@@ -151,8 +152,8 @@ const DB = {
     const userCount = this.get('SELECT COUNT(*) as c FROM users').c;
     if (userCount === 0) {
       const hash = bcrypt.hashSync('troop731admin', 10);
-      this.run('INSERT INTO users (username, password_hash, display_name, role) VALUES (?, ?, ?, ?)',
-        ['webmaster', hash, 'Troop Webmaster', 'webmaster']);
+      this.run('INSERT INTO users (username, password_hash, display_name, role, force_password_change) VALUES (?, ?, ?, ?, ?)',
+        ['webmaster', hash, 'Troop Webmaster', 'webmaster', 1]);
     }
 
     const settingsCount = this.get('SELECT COUNT(*) as c FROM settings').c;
@@ -211,6 +212,7 @@ const DB = {
       db.run(ins, ['Troop 731 Families', 'https://www.facebook.com/groups/', 'Private group for parents and guardians of active Scouts', 1]);
       db.run(ins, ['Troop 731 Scouts', 'https://www.facebook.com/groups/', 'Private group for registered Scouts only', 2]);
       db.run(ins, ['Troop 731 Alumni', 'https://www.facebook.com/groups/', 'Connect with former Scouts and leaders', 3]);
+      db.run(ins, ['Troop 731 Instagram', 'https://instagram.com/clemmons_nc_troop731_girls', 'Follow us for photos and updates', 4]);
     }
 
     const linkCount = this.get('SELECT COUNT(*) as c FROM links').c;
@@ -218,15 +220,16 @@ const DB = {
       const ins = 'INSERT INTO links (name, url, icon, sort_order) VALUES (?, ?, ?, ?)';
       db.run(ins, ['Scoutbook', 'https://www.scoutbook.scouting.org', '📘', 1]);
       db.run(ins, ['BSA National', 'https://www.scouting.org', '⚜️', 2]);
-      db.run(ins, ['Merit Badge List', 'https://meritbadge.org', '🏅', 3]);
+      db.run(ins, ['Merit Badge List', 'https://www.scouting.org/skills/merit-badges/all/', '🏅', 3]);
     }
 
     const docCount = this.get('SELECT COUNT(*) as c FROM documents').c;
     if (docCount === 0) {
       const ins = 'INSERT INTO documents (name, url, icon, sort_order) VALUES (?, ?, ?, ?)';
-      db.run(ins, ['Medical Form (Parts A&B)', '#', '📋', 1]);
-      db.run(ins, ['Permission Slip Template', '#', '📝', 2]);
-      db.run(ins, ['Troop Bylaws', '#', '📄', 3]);
+      db.run(ins, ['Medical Form (Parts A & B)', 'https://filestore.scouting.org/filestore/HealthSafety/pdf/680-001_AB.pdf', '📋', 1]);
+      db.run(ins, ['Medical Form (Parts A, B & C) — Trips over 72 hrs', 'https://filestore.scouting.org/filestore/HealthSafety/pdf/680-001_ABC.pdf', '📋', 2]);
+      db.run(ins, ['Permission Slip Template', '#', '📝', 3]);
+      db.run(ins, ['Troop Bylaws', '#', '📄', 4]);
     }
   },
 };

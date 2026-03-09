@@ -26,8 +26,8 @@ if (!sessionSecret) {
 // Fix #1: Helmet security headers
 app.use(require('helmet')());
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ extended: false, limit: '100kb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(UPLOADS_DIR));
 
@@ -39,6 +39,7 @@ app.use(session({
     maxAge: 24 * 60 * 60 * 1000,
     httpOnly: true,
     sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
   },
 }));
 
@@ -67,6 +68,7 @@ const sanitizeOptions = {
   allowedAttributes: {
     'a': ['href'],
   },
+  allowedSchemes: ['http', 'https', 'mailto'],
 };
 
 function sanitizeAboutContent(value) {
@@ -109,7 +111,7 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowedExt = /\.(jpg|jpeg|png|gif|webp)$/i;
-    if (allowedExt.test(file.originalname) && file.mimetype.startsWith('image/')) {
+    if (allowedExt.test(file.originalname) && ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.mimetype)) {
       cb(null, true);
     } else {
       cb(new Error('Only image files (jpg, png, gif, webp) are allowed'));
@@ -174,6 +176,10 @@ app.post('/api/contact', contactLimiter, (req, res) => {
   if (!name || !email || !message) {
     return res.status(400).json({ error: 'Name, email, and message are required' });
   }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ error: 'Invalid email format' });
+  }
   const result = dbSafe(res, () => DB.run('INSERT INTO messages (name, email, subject, message) VALUES (?, ?, ?, ?)',
     [name, email, subject || 'General', message]));
   if (result !== undefined) res.json({ success: true });
@@ -199,7 +205,9 @@ app.post('/api/login', loginLimiter, async (req, res) => {
       }
       req.session.userId = user.id;
       req.session.username = user.username;
-      res.json({ success: true, displayName: user.display_name });
+      const responseData = { success: true, displayName: user.display_name };
+      if (user.force_password_change) responseData.forcePasswordChange = true;
+      res.json(responseData);
     });
   } catch (err) {
     console.error('Login error:', err);
@@ -220,8 +228,12 @@ app.post('/api/logout', (req, res) => {
 
 app.get('/api/auth/check', (req, res) => {
   if (req.session && req.session.userId) {
-    const user = dbSafe(res, () => DB.get('SELECT username, display_name, role FROM users WHERE id = ?', [req.session.userId]));
-    if (user !== undefined) return res.json({ authenticated: true, user });
+    const user = dbSafe(res, () => DB.get('SELECT username, display_name, role, force_password_change FROM users WHERE id = ?', [req.session.userId]));
+    if (user !== undefined) {
+      const responseData = { authenticated: true, user };
+      if (user.force_password_change) responseData.forcePasswordChange = true;
+      return res.json(responseData);
+    }
     return;
   }
   res.json({ authenticated: false });
@@ -294,7 +306,9 @@ app.delete('/api/admin/fb-groups/:id', requireAuth, (req, res) => {
 
 // Links
 app.post('/api/admin/links', requireAuth, (req, res) => {
-  const { name, url, icon } = req.body;
+  const { name, url } = req.body;
+  let icon = req.body.icon;
+  if (typeof icon !== 'string' || icon.length > 10) icon = '';
   if (!name || !url) return res.status(400).json({ error: 'Name and URL required' });
   const result = dbSafe(res, () => {
     const maxOrder = (DB.get('SELECT MAX(sort_order) as m FROM links') || {}).m || 0;
@@ -311,7 +325,9 @@ app.delete('/api/admin/links/:id', requireAuth, (req, res) => {
 
 // Documents
 app.post('/api/admin/documents', requireAuth, (req, res) => {
-  const { name, url, icon } = req.body;
+  const { name, url } = req.body;
+  let icon = req.body.icon;
+  if (typeof icon !== 'string' || icon.length > 10) icon = '';
   if (!name || !url) return res.status(400).json({ error: 'Name and URL required' });
   const result = dbSafe(res, () => {
     const maxOrder = (DB.get('SELECT MAX(sort_order) as m FROM documents') || {}).m || 0;
@@ -336,6 +352,9 @@ app.post('/api/admin/gallery', requireAuth, upload.single('photo'), (req, res) =
     filename = req.file.filename;
     url = `/uploads/${req.file.filename}`;
   } else if (req.body.url) {
+    if (!req.body.url.startsWith('http://') && !req.body.url.startsWith('https://')) {
+      return res.status(400).json({ error: 'Gallery URL must start with http:// or https://' });
+    }
     url = req.body.url;
   }
 
@@ -351,8 +370,10 @@ app.delete('/api/admin/gallery/:id', requireAuth, (req, res) => {
   const result = dbSafe(res, () => {
     const photo = DB.get('SELECT * FROM gallery WHERE id=?', [req.params.id]);
     if (photo && photo.filename) {
-      const filePath = path.join(UPLOADS_DIR, photo.filename);
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      const filePath = path.resolve(path.join(UPLOADS_DIR, photo.filename));
+      if (filePath.startsWith(path.resolve(UPLOADS_DIR)) && fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
     }
     return DB.run('DELETE FROM gallery WHERE id=?', [req.params.id]);
   });
@@ -391,8 +412,17 @@ app.put('/api/admin/settings', requireAuth, (req, res) => {
   if (result !== undefined) res.json({ success: true });
 });
 
+const passwordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many password change attempts. Please try again later.' },
+  skip: () => process.env.NODE_ENV === 'test',
+});
+
 // Fix #10: Validate current_password presence in password change route
-app.put('/api/admin/password', requireAuth, async (req, res) => {
+app.put('/api/admin/password', requireAuth, passwordLimiter, async (req, res) => {
   try {
     const { current_password, new_password } = req.body;
     if (!current_password) {
@@ -405,7 +435,7 @@ app.put('/api/admin/password', requireAuth, async (req, res) => {
     const match = await bcrypt.compare(current_password, user.password_hash);
     if (!match) return res.status(401).json({ error: 'Current password is incorrect' });
     const hash = await bcrypt.hash(new_password, 10);
-    DB.run('UPDATE users SET password_hash=? WHERE id=?', [hash, user.id]);
+    DB.run('UPDATE users SET password_hash=?, force_password_change=0 WHERE id=?', [hash, user.id]);
     res.json({ success: true });
   } catch (err) {
     console.error('Password change error:', err);
