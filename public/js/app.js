@@ -242,7 +242,7 @@ function renderLinks(items) {
   const c = document.getElementById('linksContainer');
   if (!items.length) { c.innerHTML = '<p class="empty-state">No links.</p>'; return; }
   c.innerHTML = items.map(l => `<a href="${escAttr(l.url)}" target="_blank" rel="noopener" class="link-card">
-    <span class="link-icon">${l.icon || '🔗'}</span><span>${esc(l.name)}</span>
+    <span class="link-icon">${esc(l.icon || '🔗')}</span><span>${esc(l.name)}</span>
   </a>`).join('');
 }
 
@@ -252,7 +252,7 @@ function renderDocuments(items) {
   const c = document.getElementById('documentsContainer');
   if (!items.length) { c.innerHTML = '<p class="empty-state">No documents yet.</p>'; return; }
   c.innerHTML = items.map(d => `<a href="${escAttr(d.url)}" target="_blank" rel="noopener" class="document-item">
-    <span class="doc-icon">${d.icon || '📄'}</span><span>${esc(d.name)}</span>
+    <span class="doc-icon">${esc(d.icon || '📄')}</span><span>${esc(d.name)}</span>
   </a>`).join('');
 }
 
