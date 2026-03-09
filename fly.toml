@@ -3,7 +3,7 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'troop731'
+app = 'troop731-staging'
 primary_region = 'iad'
 
 [build]
@@ -11,7 +11,7 @@ primary_region = 'iad'
 
 [env]
   DATA_DIR = '/data'
-  NODE_ENV = 'production'
+  NODE_ENV = 'staging'
   PORT = '3000'
 
 [[mounts]]
