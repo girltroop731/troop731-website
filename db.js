@@ -224,9 +224,10 @@ const DB = {
     const docCount = this.get('SELECT COUNT(*) as c FROM documents').c;
     if (docCount === 0) {
       const ins = 'INSERT INTO documents (name, url, icon, sort_order) VALUES (?, ?, ?, ?)';
-      db.run(ins, ['Medical Form (Parts A&B)', '#', '📋', 1]);
-      db.run(ins, ['Permission Slip Template', '#', '📝', 2]);
-      db.run(ins, ['Troop Bylaws', '#', '📄', 3]);
+      db.run(ins, ['Medical Form (Parts A & B)', 'https://filestore.scouting.org/filestore/healthsafety/pdf/680-001_abc.pdf', '📋', 1]);
+      db.run(ins, ['Medical Form (Parts A, B & C) — Trips over 72 hrs', 'https://filestore.scouting.org/filestore/HealthSafety/pdf/680-001_ABC.pdf', '📋', 2]);
+      db.run(ins, ['Permission Slip Template', '#', '📝', 3]);
+      db.run(ins, ['Troop Bylaws', '#', '📄', 4]);
     }
   },
 };
