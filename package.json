@@ -1,7 +1,7 @@
 {
   "name": "troop731",
   "version": "1.0.0",
-  "description": "Scouts BSA Troop 731 Website",
+  "description": "Scouting America Troop 731 Website",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
