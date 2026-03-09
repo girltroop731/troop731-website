@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const db = require('./db');
+const DB = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,7 +23,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    maxAge: 24 * 60 * 60 * 1000,
     httpOnly: true,
     sameSite: 'lax',
   },
@@ -44,7 +44,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = /\.(jpg|jpeg|png|gif|webp)$/i;
     if (allowed.test(file.originalname)) {
@@ -55,71 +55,54 @@ const upload = multer({
   },
 });
 
-// ---- Auth middleware ----
-
+// Auth middleware
 function requireAuth(req, res, next) {
-  if (req.session && req.session.userId) {
-    return next();
-  }
+  if (req.session && req.session.userId) return next();
   res.status(401).json({ error: 'Not authenticated' });
 }
 
 // ============================================
-//  PUBLIC API — no auth required
+//  PUBLIC API
 // ============================================
 
-// Announcements
 app.get('/api/announcements', (req, res) => {
-  const rows = db.prepare('SELECT * FROM announcements ORDER BY created_at DESC').all();
-  res.json(rows);
+  res.json(DB.all('SELECT * FROM announcements ORDER BY created_at DESC'));
 });
 
-// Events
 app.get('/api/events', (req, res) => {
-  const rows = db.prepare('SELECT * FROM events ORDER BY date ASC').all();
-  res.json(rows);
+  res.json(DB.all('SELECT * FROM events ORDER BY date ASC'));
 });
 
-// Facebook groups
 app.get('/api/fb-groups', (req, res) => {
-  const rows = db.prepare('SELECT * FROM fb_groups ORDER BY sort_order ASC').all();
-  res.json(rows);
+  res.json(DB.all('SELECT * FROM fb_groups ORDER BY sort_order ASC'));
 });
 
-// Links
 app.get('/api/links', (req, res) => {
-  const rows = db.prepare('SELECT * FROM links ORDER BY sort_order ASC').all();
-  res.json(rows);
+  res.json(DB.all('SELECT * FROM links ORDER BY sort_order ASC'));
 });
 
-// Documents
 app.get('/api/documents', (req, res) => {
-  const rows = db.prepare('SELECT * FROM documents ORDER BY sort_order ASC').all();
-  res.json(rows);
+  res.json(DB.all('SELECT * FROM documents ORDER BY sort_order ASC'));
 });
 
-// Gallery
 app.get('/api/gallery', (req, res) => {
-  const rows = db.prepare('SELECT * FROM gallery ORDER BY sort_order ASC, created_at DESC').all();
-  res.json(rows);
+  res.json(DB.all('SELECT * FROM gallery ORDER BY sort_order ASC, created_at DESC'));
 });
 
-// Settings (public subset)
 app.get('/api/settings', (req, res) => {
-  const rows = db.prepare('SELECT * FROM settings').all();
+  const rows = DB.all('SELECT * FROM settings');
   const settings = {};
   rows.forEach(r => { settings[r.key] = r.value; });
   res.json(settings);
 });
 
-// Contact form submission
 app.post('/api/contact', (req, res) => {
   const { name, email, subject, message } = req.body;
   if (!name || !email || !message) {
     return res.status(400).json({ error: 'Name, email, and message are required' });
   }
-  db.prepare('INSERT INTO messages (name, email, subject, message) VALUES (?, ?, ?, ?)')
-    .run(name, email, subject || 'General', message);
+  DB.run('INSERT INTO messages (name, email, subject, message) VALUES (?, ?, ?, ?)',
+    [name, email, subject || 'General', message]);
   res.json({ success: true });
 });
 
@@ -129,14 +112,10 @@ app.post('/api/contact', (req, res) => {
 
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
-  const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
-  if (!user) {
-    return res.status(401).json({ error: 'Invalid credentials' });
-  }
+  const user = DB.get('SELECT * FROM users WHERE username = ?', [username]);
+  if (!user) return res.status(401).json({ error: 'Invalid credentials' });
   const match = await bcrypt.compare(password, user.password_hash);
-  if (!match) {
-    return res.status(401).json({ error: 'Invalid credentials' });
-  }
+  if (!match) return res.status(401).json({ error: 'Invalid credentials' });
   req.session.userId = user.id;
   req.session.username = user.username;
   res.json({ success: true, displayName: user.display_name });
@@ -149,117 +128,106 @@ app.post('/api/logout', (req, res) => {
 
 app.get('/api/auth/check', (req, res) => {
   if (req.session && req.session.userId) {
-    const user = db.prepare('SELECT username, display_name, role FROM users WHERE id = ?').get(req.session.userId);
+    const user = DB.get('SELECT username, display_name, role FROM users WHERE id = ?', [req.session.userId]);
     return res.json({ authenticated: true, user });
   }
   res.json({ authenticated: false });
 });
 
 // ============================================
-//  ADMIN API — auth required
+//  ADMIN API
 // ============================================
 
-// ---- Announcements CRUD ----
-
+// Announcements
 app.post('/api/admin/announcements', requireAuth, (req, res) => {
   const { title, content, priority, category } = req.body;
   if (!title || !content) return res.status(400).json({ error: 'Title and content required' });
-  const result = db.prepare(
-    'INSERT INTO announcements (title, content, priority, category) VALUES (?, ?, ?, ?)'
-  ).run(title, content, priority || 'normal', category || 'info');
+  const result = DB.run(
+    'INSERT INTO announcements (title, content, priority, category) VALUES (?, ?, ?, ?)',
+    [title, content, priority || 'normal', category || 'info']);
   res.json({ success: true, id: result.lastInsertRowid });
 });
 
 app.put('/api/admin/announcements/:id', requireAuth, (req, res) => {
   const { title, content, priority, category } = req.body;
-  db.prepare(
-    'UPDATE announcements SET title=?, content=?, priority=?, category=?, updated_at=CURRENT_TIMESTAMP WHERE id=?'
-  ).run(title, content, priority, category, req.params.id);
+  DB.run('UPDATE announcements SET title=?, content=?, priority=?, category=?, updated_at=CURRENT_TIMESTAMP WHERE id=?',
+    [title, content, priority, category, req.params.id]);
   res.json({ success: true });
 });
 
 app.delete('/api/admin/announcements/:id', requireAuth, (req, res) => {
-  db.prepare('DELETE FROM announcements WHERE id=?').run(req.params.id);
+  DB.run('DELETE FROM announcements WHERE id=?', [req.params.id]);
   res.json({ success: true });
 });
 
-// ---- Events CRUD ----
-
+// Events
 app.post('/api/admin/events', requireAuth, (req, res) => {
   const { title, date, end_date, time, type, location, description } = req.body;
   if (!title || !date) return res.status(400).json({ error: 'Title and date required' });
-  const result = db.prepare(
-    'INSERT INTO events (title, date, end_date, time, type, location, description) VALUES (?, ?, ?, ?, ?, ?, ?)'
-  ).run(title, date, end_date || null, time, type || 'meeting', location, description);
+  const result = DB.run(
+    'INSERT INTO events (title, date, end_date, time, type, location, description) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [title, date, end_date || null, time, type || 'meeting', location, description]);
   res.json({ success: true, id: result.lastInsertRowid });
 });
 
 app.put('/api/admin/events/:id', requireAuth, (req, res) => {
   const { title, date, end_date, time, type, location, description } = req.body;
-  db.prepare(
-    'UPDATE events SET title=?, date=?, end_date=?, time=?, type=?, location=?, description=?, updated_at=CURRENT_TIMESTAMP WHERE id=?'
-  ).run(title, date, end_date || null, time, type, location, description, req.params.id);
+  DB.run('UPDATE events SET title=?, date=?, end_date=?, time=?, type=?, location=?, description=?, updated_at=CURRENT_TIMESTAMP WHERE id=?',
+    [title, date, end_date || null, time, type, location, description, req.params.id]);
   res.json({ success: true });
 });
 
 app.delete('/api/admin/events/:id', requireAuth, (req, res) => {
-  db.prepare('DELETE FROM events WHERE id=?').run(req.params.id);
+  DB.run('DELETE FROM events WHERE id=?', [req.params.id]);
   res.json({ success: true });
 });
 
-// ---- Facebook Groups CRUD ----
-
+// Facebook Groups
 app.post('/api/admin/fb-groups', requireAuth, (req, res) => {
   const { name, url, description } = req.body;
   if (!name || !url) return res.status(400).json({ error: 'Name and URL required' });
-  const maxOrder = db.prepare('SELECT MAX(sort_order) as m FROM fb_groups').get().m || 0;
-  const result = db.prepare(
-    'INSERT INTO fb_groups (name, url, description, sort_order) VALUES (?, ?, ?, ?)'
-  ).run(name, url, description, maxOrder + 1);
+  const maxOrder = (DB.get('SELECT MAX(sort_order) as m FROM fb_groups') || {}).m || 0;
+  const result = DB.run('INSERT INTO fb_groups (name, url, description, sort_order) VALUES (?, ?, ?, ?)',
+    [name, url, description, maxOrder + 1]);
   res.json({ success: true, id: result.lastInsertRowid });
 });
 
 app.delete('/api/admin/fb-groups/:id', requireAuth, (req, res) => {
-  db.prepare('DELETE FROM fb_groups WHERE id=?').run(req.params.id);
+  DB.run('DELETE FROM fb_groups WHERE id=?', [req.params.id]);
   res.json({ success: true });
 });
 
-// ---- Links CRUD ----
-
+// Links
 app.post('/api/admin/links', requireAuth, (req, res) => {
   const { name, url, icon } = req.body;
   if (!name || !url) return res.status(400).json({ error: 'Name and URL required' });
-  const maxOrder = db.prepare('SELECT MAX(sort_order) as m FROM links').get().m || 0;
-  const result = db.prepare(
-    'INSERT INTO links (name, url, icon, sort_order) VALUES (?, ?, ?, ?)'
-  ).run(name, url, icon || '🔗', maxOrder + 1);
+  const maxOrder = (DB.get('SELECT MAX(sort_order) as m FROM links') || {}).m || 0;
+  const result = DB.run('INSERT INTO links (name, url, icon, sort_order) VALUES (?, ?, ?, ?)',
+    [name, url, icon || '🔗', maxOrder + 1]);
   res.json({ success: true, id: result.lastInsertRowid });
 });
 
 app.delete('/api/admin/links/:id', requireAuth, (req, res) => {
-  db.prepare('DELETE FROM links WHERE id=?').run(req.params.id);
+  DB.run('DELETE FROM links WHERE id=?', [req.params.id]);
   res.json({ success: true });
 });
 
-// ---- Documents CRUD ----
-
+// Documents
 app.post('/api/admin/documents', requireAuth, (req, res) => {
   const { name, url, icon } = req.body;
   if (!name || !url) return res.status(400).json({ error: 'Name and URL required' });
-  const maxOrder = db.prepare('SELECT MAX(sort_order) as m FROM documents').get().m || 0;
-  const result = db.prepare(
-    'INSERT INTO documents (name, url, icon, sort_order) VALUES (?, ?, ?, ?)'
-  ).run(name, url, icon || '📄', maxOrder + 1);
+  const maxOrder = (DB.get('SELECT MAX(sort_order) as m FROM documents') || {}).m || 0;
+  const result = DB.run('INSERT INTO documents (name, url, icon, sort_order) VALUES (?, ?, ?, ?)',
+    [name, url, icon || '📄', maxOrder + 1]);
   res.json({ success: true, id: result.lastInsertRowid });
 });
 
 app.delete('/api/admin/documents/:id', requireAuth, (req, res) => {
-  db.prepare('DELETE FROM documents WHERE id=?').run(req.params.id);
+  DB.run('DELETE FROM documents WHERE id=?', [req.params.id]);
   res.json({ success: true });
 });
 
-// ---- Gallery CRUD (with file upload) ----
-
+// Gallery (with file upload)
 app.post('/api/admin/gallery', requireAuth, upload.single('photo'), (req, res) => {
   const caption = req.body.caption || '';
   let filename = null;
@@ -272,79 +240,75 @@ app.post('/api/admin/gallery', requireAuth, upload.single('photo'), (req, res) =
     url = req.body.url;
   }
 
-  const maxOrder = db.prepare('SELECT MAX(sort_order) as m FROM gallery').get().m || 0;
-  const result = db.prepare(
-    'INSERT INTO gallery (caption, filename, url, sort_order) VALUES (?, ?, ?, ?)'
-  ).run(caption, filename, url, maxOrder + 1);
+  const maxOrder = (DB.get('SELECT MAX(sort_order) as m FROM gallery') || {}).m || 0;
+  const result = DB.run('INSERT INTO gallery (caption, filename, url, sort_order) VALUES (?, ?, ?, ?)',
+    [caption, filename, url, maxOrder + 1]);
   res.json({ success: true, id: result.lastInsertRowid });
 });
 
 app.delete('/api/admin/gallery/:id', requireAuth, (req, res) => {
-  const photo = db.prepare('SELECT * FROM gallery WHERE id=?').get(req.params.id);
+  const photo = DB.get('SELECT * FROM gallery WHERE id=?', [req.params.id]);
   if (photo && photo.filename) {
     const filePath = path.join(UPLOADS_DIR, photo.filename);
     if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
   }
-  db.prepare('DELETE FROM gallery WHERE id=?').run(req.params.id);
+  DB.run('DELETE FROM gallery WHERE id=?', [req.params.id]);
   res.json({ success: true });
 });
 
-// ---- Messages ----
-
+// Messages
 app.get('/api/admin/messages', requireAuth, (req, res) => {
-  const rows = db.prepare('SELECT * FROM messages ORDER BY created_at DESC').all();
-  res.json(rows);
+  res.json(DB.all('SELECT * FROM messages ORDER BY created_at DESC'));
 });
 
 app.put('/api/admin/messages/:id/read', requireAuth, (req, res) => {
-  db.prepare('UPDATE messages SET is_read=1 WHERE id=?').run(req.params.id);
+  DB.run('UPDATE messages SET is_read=1 WHERE id=?', [req.params.id]);
   res.json({ success: true });
 });
 
 app.delete('/api/admin/messages/:id', requireAuth, (req, res) => {
-  db.prepare('DELETE FROM messages WHERE id=?').run(req.params.id);
+  DB.run('DELETE FROM messages WHERE id=?', [req.params.id]);
   res.json({ success: true });
 });
 
-// ---- Settings ----
-
+// Settings
 app.put('/api/admin/settings', requireAuth, (req, res) => {
-  const upsert = db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value');
-  const transaction = db.transaction((settings) => {
-    for (const [k, v] of Object.entries(settings)) {
-      upsert.run(k, v);
-    }
-  });
-  transaction(req.body);
+  for (const [k, v] of Object.entries(req.body)) {
+    DB.run('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value', [k, v]);
+  }
   res.json({ success: true });
 });
 
-// ---- Change password ----
-
+// Change password
 app.put('/api/admin/password', requireAuth, async (req, res) => {
   const { current_password, new_password } = req.body;
   if (!new_password || new_password.length < 6) {
     return res.status(400).json({ error: 'New password must be at least 6 characters' });
   }
-  const user = db.prepare('SELECT * FROM users WHERE id=?').get(req.session.userId);
+  const user = DB.get('SELECT * FROM users WHERE id=?', [req.session.userId]);
   const match = await bcrypt.compare(current_password, user.password_hash);
-  if (!match) {
-    return res.status(401).json({ error: 'Current password is incorrect' });
-  }
+  if (!match) return res.status(401).json({ error: 'Current password is incorrect' });
   const hash = await bcrypt.hash(new_password, 10);
-  db.prepare('UPDATE users SET password_hash=? WHERE id=?').run(hash, user.id);
+  DB.run('UPDATE users SET password_hash=? WHERE id=?', [hash, user.id]);
   res.json({ success: true });
 });
 
-// ---- SPA fallback ----
-
+// SPA fallback
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-// ---- Start ----
+// ---- Start (async for DB init) ----
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Troop 731 website running on http://localhost:${PORT}`);
-  console.log(`Data directory: ${DATA_DIR}`);
+async function start() {
+  await DB.init();
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Troop 731 website running on http://localhost:${PORT}`);
+    console.log(`Data directory: ${DATA_DIR}`);
+  });
+}
+
+start().catch(err => {
+  console.error('Failed to start:', err);
+  process.exit(1);
 });
