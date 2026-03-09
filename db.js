@@ -79,6 +79,7 @@ const DB = {
         password_hash TEXT NOT NULL,
         display_name TEXT,
         role TEXT DEFAULT 'webmaster',
+        force_password_change INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
       CREATE TABLE IF NOT EXISTS announcements (
@@ -151,8 +152,8 @@ const DB = {
     const userCount = this.get('SELECT COUNT(*) as c FROM users').c;
     if (userCount === 0) {
       const hash = bcrypt.hashSync('troop731admin', 10);
-      this.run('INSERT INTO users (username, password_hash, display_name, role) VALUES (?, ?, ?, ?)',
-        ['webmaster', hash, 'Troop Webmaster', 'webmaster']);
+      this.run('INSERT INTO users (username, password_hash, display_name, role, force_password_change) VALUES (?, ?, ?, ?, ?)',
+        ['webmaster', hash, 'Troop Webmaster', 'webmaster', 1]);
     }
 
     const settingsCount = this.get('SELECT COUNT(*) as c FROM settings').c;
@@ -211,6 +212,7 @@ const DB = {
       db.run(ins, ['Troop 731 Families', 'https://www.facebook.com/groups/', 'Private group for parents and guardians of active Scouts', 1]);
       db.run(ins, ['Troop 731 Scouts', 'https://www.facebook.com/groups/', 'Private group for registered Scouts only', 2]);
       db.run(ins, ['Troop 731 Alumni', 'https://www.facebook.com/groups/', 'Connect with former Scouts and leaders', 3]);
+      db.run(ins, ['Troop 731 Instagram', 'https://instagram.com/clemmons_nc_troop731_girls', 'Follow us for photos and updates', 4]);
     }
 
     const linkCount = this.get('SELECT COUNT(*) as c FROM links').c;

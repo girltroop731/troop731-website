@@ -26,10 +26,23 @@ function fmtDate(str) {
 
 /* ---- Init ---- */
 
+function navigateToSettingsForPasswordChange() {
+  // Navigate to the Settings section and show a warning
+  const navLinks = document.querySelectorAll('.admin-nav a');
+  navLinks.forEach(l => l.classList.remove('active'));
+  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+  const settingsLink = document.querySelector('.admin-nav a[data-section="settings"]');
+  if (settingsLink) settingsLink.classList.add('active');
+  const settingsSection = document.getElementById('sec-settings');
+  if (settingsSection) settingsSection.classList.add('active');
+  showToast('You must change your password before continuing.', true);
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   const auth = await api.get('/api/auth/check');
   if (auth.authenticated) {
     showAdmin();
+    if (auth.forcePasswordChange) navigateToSettingsForPasswordChange();
   } else {
     initLogin();
   }
@@ -44,6 +57,7 @@ function initLogin() {
       const res = await api.post('/api/login', { username, password });
       if (res.success) {
         showAdmin();
+        if (res.forcePasswordChange) navigateToSettingsForPasswordChange();
       } else {
         document.getElementById('loginError').style.display = 'block';
       }
@@ -180,7 +194,7 @@ async function loadLinks() {
   const c = document.getElementById('listLinks');
   if (!items.length) { c.innerHTML = '<p class="empty-state">No links.</p>'; return; }
   c.innerHTML = items.map(l => `<div class="admin-item">
-    <div class="admin-item-info"><h4>${l.icon || '🔗'} ${esc(l.name)}</h4><p>${esc(l.url)}</p></div>
+    <div class="admin-item-info"><h4>${esc(l.icon || '🔗')} ${esc(l.name)}</h4><p>${esc(l.url)}</p></div>
     <div class="admin-item-actions"><button class="btn-icon delete" data-del-link="${l.id}" title="Delete">✕</button></div>
   </div>`).join('');
   c.querySelectorAll('[data-del-link]').forEach(btn => {
@@ -200,7 +214,7 @@ async function loadDocs() {
   const c = document.getElementById('listDocs');
   if (!items.length) { c.innerHTML = '<p class="empty-state">No documents.</p>'; return; }
   c.innerHTML = items.map(d => `<div class="admin-item">
-    <div class="admin-item-info"><h4>${d.icon || '📄'} ${esc(d.name)}</h4><p>${esc(d.url)}</p></div>
+    <div class="admin-item-info"><h4>${esc(d.icon || '📄')} ${esc(d.name)}</h4><p>${esc(d.url)}</p></div>
     <div class="admin-item-actions"><button class="btn-icon delete" data-del-doc="${d.id}" title="Delete">✕</button></div>
   </div>`).join('');
   c.querySelectorAll('[data-del-doc]').forEach(btn => {
