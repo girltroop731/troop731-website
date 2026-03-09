@@ -1,12 +1,12 @@
 /* Troop 731 — Public Site */
 
 const API = {
-  get: (url) => fetch(url).then(r => r.json()),
+  get: (url) => fetch(url).then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
   post: (url, data) => fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
-  }).then(r => r.json()),
+  }).then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
 };
 
 let allEvents = [];
@@ -44,8 +44,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 function initNav() {
   const toggle = document.getElementById('navToggle');
   const links = document.getElementById('navLinks');
-  toggle.addEventListener('click', () => links.classList.toggle('open'));
-  links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => links.classList.remove('open')));
+  toggle.addEventListener('click', () => {
+    links.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', links.classList.contains('open'));
+  });
+  links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    links.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+  }));
 
   const sections = document.querySelectorAll('section[id]');
   window.addEventListener('scroll', () => {
@@ -140,7 +146,7 @@ function renderEvents(items) {
     const mon = d.toLocaleDateString('en-US', { month: 'short' });
     const typeClass = `type-${e.type || 'meeting'}`;
     const typeLabel = (e.type || 'meeting').charAt(0).toUpperCase() + (e.type || 'meeting').slice(1);
-    return `<div class="event-card" data-date="${e.date}" data-id="${e.id}">
+    return `<div class="event-card" data-date="${e.date}" data-id="${e.id}" tabindex="0" role="button">
       <div class="event-date-badge"><div class="month">${mon}</div><div class="day">${d.getDate()}</div></div>
       <div class="event-details">
         <h4>${esc(e.title)}</h4>
@@ -151,9 +157,13 @@ function renderEvents(items) {
   }).join('');
 
   c.querySelectorAll('.event-card').forEach(card => {
-    card.addEventListener('click', () => {
+    const openModal = () => {
       const ev = items.find(e => String(e.id) === card.dataset.id);
       if (ev) showEventModal(ev);
+    };
+    card.addEventListener('click', openModal);
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(); }
     });
   });
 }

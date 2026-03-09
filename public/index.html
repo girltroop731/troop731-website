@@ -9,12 +9,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <nav id="navbar">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <nav id="navbar" aria-label="Main navigation">
         <div class="nav-container">
             <a href="#home" class="nav-logo">
                 <span class="logo-emblem">⚜</span> Troop 731
             </a>
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
                 <span></span><span></span><span></span>
             </button>
             <ul class="nav-links" id="navLinks">
@@ -29,6 +30,7 @@
         </div>
     </nav>
 
+    <main id="main-content">
     <section id="home" class="hero">
         <div class="hero-content">
             <div class="hero-emblem">⚜</div>
@@ -46,22 +48,22 @@
         <div class="container">
             <div class="info-cards">
                 <div class="info-card">
-                    <div class="info-icon">📅</div>
+                    <div class="info-icon"><span aria-hidden="true">📅</span></div>
                     <h3>Meetings</h3>
                     <p id="meetingInfo">Loading...</p>
                 </div>
                 <div class="info-card">
-                    <div class="info-icon">📍</div>
+                    <div class="info-icon"><span aria-hidden="true">📍</span></div>
                     <h3>Location</h3>
                     <p id="locationInfo">Loading...</p>
                 </div>
                 <div class="info-card">
-                    <div class="info-icon">👥</div>
+                    <div class="info-icon"><span aria-hidden="true">👥</span></div>
                     <h3>Ages</h3>
                     <p>11–17 Years Old</p>
                 </div>
                 <div class="info-card">
-                    <div class="info-icon">⚜</div>
+                    <div class="info-icon"><span aria-hidden="true">⚜</span></div>
                     <h3>Chartered</h3>
                     <p id="charteredInfo">Loading...</p>
                 </div>
@@ -82,9 +84,9 @@
             <h2 class="section-title">Upcoming Events &amp; Activities</h2>
             <div class="calendar-wrapper">
                 <div class="calendar-header">
-                    <button class="cal-nav" id="calPrev">&#9664;</button>
+                    <button class="cal-nav" id="calPrev" aria-label="Previous month">&#9664;</button>
                     <h3 id="calMonthYear"></h3>
-                    <button class="cal-nav" id="calNext">&#9654;</button>
+                    <button class="cal-nav" id="calNext" aria-label="Next month">&#9654;</button>
                 </div>
                 <div class="calendar-grid">
                     <div class="cal-day-header">Sun</div>
@@ -112,22 +114,22 @@
                 </div>
                 <div class="about-highlights">
                     <div class="highlight-card">
-                        <div class="highlight-icon">🏕️</div>
+                        <div class="highlight-icon"><span aria-hidden="true">🏕️</span></div>
                         <h4>Monthly Campouts</h4>
                         <p>Outdoor adventures every month throughout the year</p>
                     </div>
                     <div class="highlight-card">
-                        <div class="highlight-icon">🏅</div>
+                        <div class="highlight-icon"><span aria-hidden="true">🏅</span></div>
                         <h4>Merit Badges</h4>
                         <p>Over 130 merit badges available to earn</p>
                     </div>
                     <div class="highlight-card">
-                        <div class="highlight-icon">🤝</div>
+                        <div class="highlight-icon"><span aria-hidden="true">🤝</span></div>
                         <h4>Community Service</h4>
                         <p>Regular service projects giving back to our community</p>
                     </div>
                     <div class="highlight-card">
-                        <div class="highlight-icon">🦅</div>
+                        <div class="highlight-icon"><span aria-hidden="true">🦅</span></div>
                         <h4>Eagle Scouts</h4>
                         <p id="eagleCount">Loading...</p>
                     </div>
@@ -218,6 +220,7 @@
             </div>
         </div>
     </section>
+    </main>
 
     <footer class="site-footer">
         <div class="container">
@@ -253,8 +256,8 @@
     </footer>
 
     <div class="modal-overlay" id="eventModal">
-        <div class="modal">
-            <button class="modal-close" id="modalClose">&times;</button>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <button class="modal-close" id="modalClose" aria-label="Close dialog">&times;</button>
             <h3 id="modalTitle"></h3>
             <div class="modal-meta">
                 <span id="modalDate"></span>
