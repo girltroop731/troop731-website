@@ -108,7 +108,8 @@ function renderCalendar() {
     const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
     const has = eventDays.has(d);
     const cls = `cal-day${isToday ? ' today' : ''}${has ? ' has-event' : ''}`;
-    const attr = has ? ` data-date="${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}"` : '';
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const attr = has ? ` data-date="${dateStr}" tabindex="0" role="button" aria-label="${names[month]} ${d}, has event"` : '';
     html += `<div class="${cls}"${attr}>${d}</div>`;
   }
   const total = firstDay + daysInMonth;
@@ -118,13 +119,17 @@ function renderCalendar() {
   document.getElementById('calendarDays').innerHTML = html;
 
   document.querySelectorAll('.cal-day.has-event').forEach(el => {
-    el.addEventListener('click', () => {
+    const scrollToEvent = () => {
       const card = document.querySelector(`.event-card[data-date="${el.dataset.date}"]`);
       if (card) {
         card.scrollIntoView({ behavior: 'smooth', block: 'center' });
         card.style.outline = '3px solid var(--scout-gold)';
         setTimeout(() => card.style.outline = '', 2000);
       }
+    };
+    el.addEventListener('click', scrollToEvent);
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); scrollToEvent(); }
     });
   });
 
@@ -170,14 +175,40 @@ function renderEvents(items) {
 
 /* ---- Modal ---- */
 
+let modalTriggerElement = null;
+
 function initModal() {
   const overlay = document.getElementById('eventModal');
-  document.getElementById('modalClose').onclick = () => overlay.classList.remove('active');
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('active'); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') overlay.classList.remove('active'); });
+  const closeBtn = document.getElementById('modalClose');
+  const modal = overlay.querySelector('.modal');
+
+  const closeModal = () => {
+    overlay.classList.remove('active');
+    if (modalTriggerElement) { modalTriggerElement.focus(); modalTriggerElement = null; }
+  };
+
+  closeBtn.onclick = closeModal;
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && overlay.classList.contains('active')) closeModal();
+  });
+
+  // Focus trap
+  overlay.addEventListener('keydown', e => {
+    if (e.key !== 'Tab' || !overlay.classList.contains('active')) return;
+    const focusable = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (!focusable.length) return;
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+    } else {
+      if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
 }
 
 function showEventModal(e) {
+  modalTriggerElement = document.activeElement;
   document.getElementById('modalTitle').textContent = e.title;
   const d = new Date(e.date + 'T00:00:00');
   let ds = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
@@ -190,6 +221,7 @@ function showEventModal(e) {
   document.getElementById('modalLocation').textContent = e.location ? `Location: ${e.location}` : '';
   document.getElementById('modalDescription').innerHTML = `<p>${esc(e.description || 'No additional details.')}</p>`;
   document.getElementById('eventModal').classList.add('active');
+  document.getElementById('modalClose').focus();
 }
 
 /* ---- Facebook Groups ---- */
@@ -292,6 +324,7 @@ function showToast(msg, isError = false) {
   const old = document.querySelector('.toast'); if (old) old.remove();
   const t = document.createElement('div');
   t.className = `toast${isError ? ' error' : ''}`;
+  t.setAttribute('role', 'alert');
   t.textContent = msg;
   document.body.appendChild(t);
   requestAnimationFrame(() => t.classList.add('show'));
