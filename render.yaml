@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: troop731
+    runtime: node
+    buildCommand: npm ci --production
+    startCommand: node server.js
+    envVars:
+      - key: DATA_DIR
+        value: /data
+      - key: SESSION_SECRET
+        generateValue: true
+    disk:
+      name: troop-data
+      mountPath: /data
+      sizeGB: 1

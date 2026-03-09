@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webmaster Panel — Troop 731</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <span class="logo-emblem">⚜</span>
+            <h2>Troop 731 Webmaster</h2>
+            <p class="login-subtitle">Sign in to manage the troop website</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginUser">Username</label>
+                    <input type="text" id="loginUser" placeholder="webmaster" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPass">Password</label>
+                    <input type="password" id="loginPass" required>
+                </div>
+                <p class="login-error" id="loginError">Invalid username or password.</p>
+                <button type="submit" class="btn btn-primary" style="width:100%">Sign In</button>
+            </form>
+            <p style="margin-top:20px;font-size:0.8rem;color:var(--text-muted);">
+                Default: <code>webmaster</code> / <code>troop731admin</code>
+            </p>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" style="display:none">
+        <nav id="navbar">
+            <div class="nav-container">
+                <a href="/" class="nav-logo"><span class="logo-emblem">⚜</span> Troop 731</a>
+                <ul class="nav-links">
+                    <li><a href="/">View Site</a></li>
+                    <li><a href="#" id="logoutBtn" style="color:var(--scout-gold)">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="admin-layout">
+            <aside class="admin-sidebar">
+                <h3>Webmaster Panel</h3>
+                <ul class="admin-nav">
+                    <li><a href="#" data-section="dashboard" class="active">Dashboard</a></li>
+                    <li><a href="#" data-section="announcements">Announcements</a></li>
+                    <li><a href="#" data-section="events">Events &amp; Calendar</a></li>
+                    <li><a href="#" data-section="facebook">Facebook Groups</a></li>
+                    <li><a href="#" data-section="links">Links &amp; Docs</a></li>
+                    <li><a href="#" data-section="gallery">Photo Gallery</a></li>
+                    <li><a href="#" data-section="messages">Messages</a></li>
+                    <li><a href="#" data-section="settings">Settings</a></li>
+                </ul>
+            </aside>
+
+            <main class="admin-main">
+
+                <!-- Dashboard -->
+                <div class="admin-section active" id="sec-dashboard">
+                    <h2>Dashboard</h2>
+                    <div class="stats-grid">
+                        <div class="admin-card stat-card"><div class="stat-num" id="statAnn">0</div><p>Announcements</p></div>
+                        <div class="admin-card stat-card"><div class="stat-num" id="statEvt">0</div><p>Events</p></div>
+                        <div class="admin-card stat-card"><div class="stat-num" id="statMsg">0</div><p>Unread Messages</p></div>
+                        <div class="admin-card stat-card"><div class="stat-num" id="statFB">0</div><p>FB Groups</p></div>
+                    </div>
+                    <div class="admin-card">
+                        <h3>Quick Start Guide</h3>
+                        <ul style="padding-left:20px;line-height:2">
+                            <li><strong>Announcements</strong> — post news to the homepage</li>
+                            <li><strong>Events</strong> — add campouts, meetings, activities to the calendar</li>
+                            <li><strong>Facebook Groups</strong> — manage links to private FB groups</li>
+                            <li><strong>Links &amp; Docs</strong> — add resources and troop documents</li>
+                            <li><strong>Gallery</strong> — upload or link troop photos</li>
+                            <li><strong>Messages</strong> — read contact form submissions</li>
+                            <li><strong>Settings</strong> — update troop info &amp; change your password</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Announcements -->
+                <div class="admin-section" id="sec-announcements">
+                    <h2>Announcements</h2>
+                    <div class="admin-card">
+                        <h3>Post New Announcement</h3>
+                        <form id="annForm" class="admin-form">
+                            <div class="form-group"><label>Title</label><input type="text" id="annTitle" required></div>
+                            <div class="form-group"><label>Content</label><textarea id="annContent" rows="4" required></textarea></div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Priority</label><select id="annPriority"><option value="normal">Normal</option><option value="high">High (Important)</option></select></div>
+                                <div class="form-group"><label>Category</label><select id="annCategory"><option value="info">General Info</option><option value="event">Event Related</option></select></div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm">Post Announcement</button>
+                        </form>
+                    </div>
+                    <div class="admin-card"><h3>Current Announcements</h3><div id="listAnn" class="admin-item-list"></div></div>
+                </div>
+
+                <!-- Events -->
+                <div class="admin-section" id="sec-events">
+                    <h2>Events &amp; Calendar</h2>
+                    <div class="admin-card">
+                        <h3>Add Event</h3>
+                        <form id="evtForm" class="admin-form">
+                            <div class="form-group"><label>Title</label><input type="text" id="evtTitle" required></div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Start Date</label><input type="date" id="evtDate" required></div>
+                                <div class="form-group"><label>End Date (optional)</label><input type="date" id="evtEndDate"></div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Time</label><input type="text" id="evtTime" placeholder="e.g. 7:00 PM"></div>
+                                <div class="form-group"><label>Type</label>
+                                    <select id="evtType"><option value="meeting">Meeting</option><option value="campout">Campout</option><option value="service">Service Project</option><option value="fundraiser">Fundraiser</option><option value="training">Training</option><option value="special">Special Event</option></select>
+                                </div>
+                            </div>
+                            <div class="form-group"><label>Location</label><input type="text" id="evtLocation"></div>
+                            <div class="form-group"><label>Description</label><textarea id="evtDesc" rows="4"></textarea></div>
+                            <button type="submit" class="btn btn-primary btn-sm">Add Event</button>
+                        </form>
+                    </div>
+                    <div class="admin-card"><h3>All Events</h3><div id="listEvt" class="admin-item-list"></div></div>
+                </div>
+
+                <!-- Facebook Groups -->
+                <div class="admin-section" id="sec-facebook">
+                    <h2>Facebook Groups</h2>
+                    <div class="admin-card">
+                        <h3>Add Group</h3>
+                        <form id="fbForm" class="admin-form">
+                            <div class="form-group"><label>Group Name</label><input type="text" id="fbName" required></div>
+                            <div class="form-group"><label>Facebook Group URL</label><input type="url" id="fbUrl" required placeholder="https://www.facebook.com/groups/..."></div>
+                            <div class="form-group"><label>Description</label><input type="text" id="fbDesc"></div>
+                            <button type="submit" class="btn btn-primary btn-sm">Add Group</button>
+                        </form>
+                    </div>
+                    <div class="admin-card"><h3>Current Groups</h3><div id="listFB" class="admin-item-list"></div></div>
+                </div>
+
+                <!-- Links & Docs -->
+                <div class="admin-section" id="sec-links">
+                    <h2>Links &amp; Documents</h2>
+                    <div class="admin-card">
+                        <h3>Add Link</h3>
+                        <form id="linkForm" class="admin-form">
+                            <div class="form-row">
+                                <div class="form-group"><label>Name</label><input type="text" id="linkName" required></div>
+                                <div class="form-group"><label>Icon (emoji)</label><input type="text" id="linkIcon" maxlength="4" placeholder="🔗"></div>
+                            </div>
+                            <div class="form-group"><label>URL</label><input type="url" id="linkUrl" required></div>
+                            <button type="submit" class="btn btn-primary btn-sm">Add Link</button>
+                        </form>
+                    </div>
+                    <div class="admin-card"><h3>Current Links</h3><div id="listLinks" class="admin-item-list"></div></div>
+
+                    <div class="admin-card">
+                        <h3>Add Document</h3>
+                        <form id="docForm" class="admin-form">
+                            <div class="form-row">
+                                <div class="form-group"><label>Name</label><input type="text" id="docName" required></div>
+                                <div class="form-group"><label>Icon (emoji)</label><input type="text" id="docIcon" maxlength="4" placeholder="📄"></div>
+                            </div>
+                            <div class="form-group"><label>URL / Link</label><input type="url" id="docUrl" required></div>
+                            <button type="submit" class="btn btn-primary btn-sm">Add Document</button>
+                        </form>
+                    </div>
+                    <div class="admin-card"><h3>Current Documents</h3><div id="listDocs" class="admin-item-list"></div></div>
+                </div>
+
+                <!-- Gallery -->
+                <div class="admin-section" id="sec-gallery">
+                    <h2>Photo Gallery</h2>
+                    <div class="admin-card">
+                        <h3>Upload Photo</h3>
+                        <form id="galleryForm" class="admin-form" enctype="multipart/form-data">
+                            <div class="form-group"><label>Caption</label><input type="text" id="photoCaption" required></div>
+                            <div class="form-group"><label>Upload Image</label><input type="file" id="photoFile" accept="image/*"></div>
+                            <div class="form-group"><label>— or — Image URL</label><input type="url" id="photoUrl" placeholder="https://..."></div>
+                            <button type="submit" class="btn btn-primary btn-sm">Add Photo</button>
+                        </form>
+                        <p style="font-size:0.8rem;color:var(--text-muted);margin-top:10px">Upload directly or paste a URL from Google Drive, Imgur, etc.</p>
+                    </div>
+                    <div class="admin-card"><h3>Photos</h3><div id="listGallery" class="admin-item-list"></div></div>
+                </div>
+
+                <!-- Messages -->
+                <div class="admin-section" id="sec-messages">
+                    <h2>Contact Messages</h2>
+                    <div class="admin-card"><div id="listMessages"></div></div>
+                </div>
+
+                <!-- Settings -->
+                <div class="admin-section" id="sec-settings">
+                    <h2>Settings</h2>
+                    <div class="admin-card">
+                        <h3>Troop Information</h3>
+                        <form id="settingsForm" class="admin-form">
+                            <div class="form-row">
+                                <div class="form-group"><label>Meeting Day</label><input type="text" id="setDay"></div>
+                                <div class="form-group"><label>Meeting Time</label><input type="text" id="setTime"></div>
+                            </div>
+                            <div class="form-group"><label>Meeting Location</label><input type="text" id="setLoc"></div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Scoutmaster Name</label><input type="text" id="setSM"></div>
+                                <div class="form-group"><label>Troop Email</label><input type="email" id="setEmail"></div>
+                            </div>
+                            <div class="form-group"><label>Charter / History</label><input type="text" id="setCharter"></div>
+                            <div class="form-group"><label>Eagle Scout Info</label><input type="text" id="setEagle"></div>
+                            <div class="form-group"><label>About Section (HTML OK)</label><textarea id="setAbout" rows="8"></textarea></div>
+                            <button type="submit" class="btn btn-primary btn-sm">Save Settings</button>
+                        </form>
+                    </div>
+                    <div class="admin-card">
+                        <h3>Change Password</h3>
+                        <form id="passForm" class="admin-form">
+                            <div class="form-group"><label>Current Password</label><input type="password" id="passCur" required></div>
+                            <div class="form-group"><label>New Password (min 6 chars)</label><input type="password" id="passNew" required minlength="6"></div>
+                            <div class="form-group"><label>Confirm New Password</label><input type="password" id="passConfirm" required></div>
+                            <button type="submit" class="btn btn-primary btn-sm">Change Password</button>
+                        </form>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="/js/admin.js"></script>
+</body>
+</html>

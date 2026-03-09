@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scouts BSA Troop 731</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="#home" class="nav-logo">
+                <span class="logo-emblem">⚜</span> Troop 731
+            </a>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#announcements">News</a></li>
+                <li><a href="#calendar">Calendar</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#resources">Resources</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="/admin" class="nav-admin-link">Webmaster</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <div class="hero-emblem">⚜</div>
+            <h1>Scouts BSA Troop 731</h1>
+            <p class="hero-subtitle">Empowering Young Women Through Adventure, Leadership &amp; Service</p>
+            <p class="hero-motto">"Be Prepared"</p>
+            <div class="hero-actions">
+                <a href="#about" class="btn btn-primary">Learn More</a>
+                <a href="#contact" class="btn btn-outline">Join Our Troop</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="quick-info">
+        <div class="container">
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="info-icon">📅</div>
+                    <h3>Meetings</h3>
+                    <p id="meetingInfo">Loading...</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">📍</div>
+                    <h3>Location</h3>
+                    <p id="locationInfo">Loading...</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">👥</div>
+                    <h3>Ages</h3>
+                    <p>11–17 Years Old</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">⚜</div>
+                    <h3>Chartered</h3>
+                    <p id="charteredInfo">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="announcements" class="section">
+        <div class="container">
+            <h2 class="section-title">Troop Announcements</h2>
+            <div class="announcements-grid" id="announcementsContainer"></div>
+            <p class="empty-state" id="noAnnouncements" style="display:none;">No announcements at this time. Check back soon!</p>
+        </div>
+    </section>
+
+    <section id="calendar" class="section section-alt">
+        <div class="container">
+            <h2 class="section-title">Upcoming Events &amp; Activities</h2>
+            <div class="calendar-wrapper">
+                <div class="calendar-header">
+                    <button class="cal-nav" id="calPrev">&#9664;</button>
+                    <h3 id="calMonthYear"></h3>
+                    <button class="cal-nav" id="calNext">&#9654;</button>
+                </div>
+                <div class="calendar-grid">
+                    <div class="cal-day-header">Sun</div>
+                    <div class="cal-day-header">Mon</div>
+                    <div class="cal-day-header">Tue</div>
+                    <div class="cal-day-header">Wed</div>
+                    <div class="cal-day-header">Thu</div>
+                    <div class="cal-day-header">Fri</div>
+                    <div class="cal-day-header">Sat</div>
+                    <div id="calendarDays" class="cal-days-container"></div>
+                </div>
+            </div>
+            <h3 class="subsection-title">Event Details</h3>
+            <div class="events-list" id="eventsContainer"></div>
+            <p class="empty-state" id="noEvents" style="display:none;">No upcoming events scheduled.</p>
+        </div>
+    </section>
+
+    <section id="about" class="section">
+        <div class="container">
+            <h2 class="section-title">About Troop 731</h2>
+            <div class="about-grid">
+                <div class="about-text" id="aboutContent">
+                    <p>Loading...</p>
+                </div>
+                <div class="about-highlights">
+                    <div class="highlight-card">
+                        <div class="highlight-icon">🏕️</div>
+                        <h4>Monthly Campouts</h4>
+                        <p>Outdoor adventures every month throughout the year</p>
+                    </div>
+                    <div class="highlight-card">
+                        <div class="highlight-icon">🏅</div>
+                        <h4>Merit Badges</h4>
+                        <p>Over 130 merit badges available to earn</p>
+                    </div>
+                    <div class="highlight-card">
+                        <div class="highlight-icon">🤝</div>
+                        <h4>Community Service</h4>
+                        <p>Regular service projects giving back to our community</p>
+                    </div>
+                    <div class="highlight-card">
+                        <div class="highlight-icon">🦅</div>
+                        <h4>Eagle Scouts</h4>
+                        <p id="eagleCount">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="resources" class="section section-alt">
+        <div class="container">
+            <h2 class="section-title">Resources &amp; Links</h2>
+            <div class="resources-block">
+                <h3 class="subsection-title">Private Facebook Groups</h3>
+                <p class="resources-note">These groups are private and require membership approval. Click to request access.</p>
+                <div class="fb-groups-grid" id="fbGroupsContainer"></div>
+            </div>
+            <div class="resources-block">
+                <h3 class="subsection-title">Useful Links</h3>
+                <div class="links-grid" id="linksContainer"></div>
+            </div>
+            <div class="resources-block">
+                <h3 class="subsection-title">Troop Documents</h3>
+                <div class="documents-list" id="documentsContainer"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="gallery" class="section">
+        <div class="container">
+            <h2 class="section-title">Troop Photos</h2>
+            <div class="gallery-grid" id="galleryContainer"></div>
+            <p class="empty-state" id="noPhotos" style="display:none;">Photos coming soon!</p>
+        </div>
+    </section>
+
+    <section id="contact" class="section section-alt">
+        <div class="container">
+            <h2 class="section-title">Contact Us</h2>
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <h3>Get In Touch</h3>
+                    <p>Interested in joining Troop 731? Have questions? We'd love to hear from you!</p>
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <strong>Scoutmaster:</strong>
+                            <span id="scoutmasterName">Loading...</span>
+                        </div>
+                        <div class="contact-item">
+                            <strong>Email:</strong>
+                            <a href="" id="troopEmail">Loading...</a>
+                        </div>
+                        <div class="contact-item">
+                            <strong>Meetings:</strong>
+                            <span id="contactMeetingInfo">Loading...</span>
+                        </div>
+                        <div class="contact-item">
+                            <strong>Location:</strong>
+                            <span id="contactLocation">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-form-wrapper">
+                    <form id="contactForm" class="contact-form">
+                        <div class="form-group">
+                            <label for="contactName">Name</label>
+                            <input type="text" id="contactName" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactEmailInput">Email</label>
+                            <input type="email" id="contactEmailInput" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactSubject">Subject</label>
+                            <select id="contactSubject" name="subject">
+                                <option value="Interested in Joining">Interested in Joining</option>
+                                <option value="General Information">General Information</option>
+                                <option value="Volunteer Opportunity">Volunteer Opportunity</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactMessage">Message</label>
+                            <textarea id="contactMessage" name="message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <span class="logo-emblem">⚜</span>
+                    <h3>Troop 731</h3>
+                    <p>Scouts BSA &mdash; All-Girls Troop</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#calendar">Calendar</a></li>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Scouting</h4>
+                    <ul>
+                        <li><a href="https://www.scouting.org" target="_blank" rel="noopener">BSA National</a></li>
+                        <li><a href="https://www.scoutbook.scouting.org" target="_blank" rel="noopener">Scoutbook</a></li>
+                        <li><a href="https://meritbadge.org" target="_blank" rel="noopener">Merit Badge Info</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; <span id="footerYear"></span> Troop 731, Scouts BSA. All rights reserved.</p>
+                <p class="footer-credit">Maintained by the Troop 731 Webmaster</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="modal-overlay" id="eventModal">
+        <div class="modal">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <h3 id="modalTitle"></h3>
+            <div class="modal-meta">
+                <span id="modalDate"></span>
+                <span id="modalLocation"></span>
+            </div>
+            <div id="modalDescription"></div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>

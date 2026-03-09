@@ -1,0 +1,15 @@
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - troop_data:/data
+    environment:
+      - PORT=3000
+      - DATA_DIR=/data
+      - SESSION_SECRET=${SESSION_SECRET:-change-this-to-a-random-string}
+    restart: unless-stopped
+
+volumes:
+  troop_data:
