@@ -49,7 +49,7 @@
                     <li><a href="#" data-section="dashboard" class="active">Dashboard</a></li>
                     <li><a href="#" data-section="announcements">Announcements</a></li>
                     <li><a href="#" data-section="events">Events &amp; Calendar</a></li>
-                    <li><a href="#" data-section="facebook">Facebook Groups</a></li>
+                    <li><a href="#" data-section="facebook">Social Media</a></li>
                     <li><a href="#" data-section="links">Links &amp; Docs</a></li>
                     <li><a href="#" data-section="gallery">Photo Gallery</a></li>
                     <li><a href="#" data-section="messages">Messages</a></li>
@@ -73,7 +73,7 @@
                         <ul style="padding-left:20px;line-height:2">
                             <li><strong>Announcements</strong> — post news to the homepage</li>
                             <li><strong>Events</strong> — add campouts, meetings, activities to the calendar</li>
-                            <li><strong>Facebook Groups</strong> — manage links to private FB groups</li>
+                            <li><strong>Social Media</strong> — manage links to Facebook groups, Instagram, etc.</li>
                             <li><strong>Links &amp; Docs</strong> — add resources and troop documents</li>
                             <li><strong>Gallery</strong> — upload or link troop photos</li>
                             <li><strong>Messages</strong> — read contact form submissions</li>
@@ -125,19 +125,19 @@
                     <div class="admin-card"><h3>All Events</h3><div id="listEvt" class="admin-item-list"></div></div>
                 </div>
 
-                <!-- Facebook Groups -->
+                <!-- Social Media -->
                 <div class="admin-section" id="sec-facebook">
-                    <h2>Facebook Groups</h2>
+                    <h2>Social Media</h2>
                     <div class="admin-card">
-                        <h3>Add Group</h3>
+                        <h3>Add Social Link</h3>
                         <form id="fbForm" class="admin-form">
-                            <div class="form-group"><label for="fbName">Group Name</label><input type="text" id="fbName" required></div>
-                            <div class="form-group"><label for="fbUrl">Facebook Group URL</label><input type="url" id="fbUrl" required placeholder="https://www.facebook.com/groups/..."></div>
+                            <div class="form-group"><label for="fbName">Name</label><input type="text" id="fbName" required placeholder="e.g. Troop 731 Instagram"></div>
+                            <div class="form-group"><label for="fbUrl">URL</label><input type="url" id="fbUrl" required placeholder="https://..."></div>
                             <div class="form-group"><label for="fbDesc">Description</label><input type="text" id="fbDesc"></div>
-                            <button type="submit" class="btn btn-primary btn-sm">Add Group</button>
+                            <button type="submit" class="btn btn-primary btn-sm">Add Social Link</button>
                         </form>
                     </div>
-                    <div class="admin-card"><h3>Current Groups</h3><div id="listFB" class="admin-item-list"></div></div>
+                    <div class="admin-card"><h3>Current Social Links</h3><div id="listFB" class="admin-item-list"></div></div>
                 </div>
 
                 <!-- Links & Docs -->
