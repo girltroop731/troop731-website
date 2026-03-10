@@ -289,25 +289,42 @@ function renderGallery(items) {
     if (e.target.dataset.index != null) goTo(+e.target.dataset.index);
   });
 
-  // Lightbox
+  // Auto-rotate every 8 seconds when visible
+  let autoTimer = null;
+  function startAuto() { if (!autoTimer) autoTimer = setInterval(() => goTo(current + 1), 8000); }
+  function stopAuto() { clearInterval(autoTimer); autoTimer = null; }
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([entry]) => { entry.isIntersecting ? startAuto() : stopAuto(); }, { threshold: 0.3 }).observe(container);
+  } else {
+    startAuto();
+  }
+
+  // Pause on hover/focus
+  container.addEventListener('mouseenter', stopAuto);
+  container.addEventListener('mouseleave', startAuto);
+  container.addEventListener('focusin', stopAuto);
+  container.addEventListener('focusout', startAuto);
+
+  // Lightbox — always open the currently visible photo
   const lightbox = document.getElementById('photoLightbox');
   const lightboxImg = document.getElementById('lightboxImg');
   const lightboxCaption = document.getElementById('lightboxCaption');
 
-  track.addEventListener('click', (e) => {
-    const slide = e.target.closest('.carousel-slide');
-    if (!slide) return;
-    const photo = photos[+slide.dataset.index];
+  track.addEventListener('click', () => {
+    const photo = photos[current];
     lightboxImg.src = photo.url;
     lightboxImg.alt = photo.caption || 'Troop photo';
     lightboxCaption.textContent = photo.caption || '';
     lightbox.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+    stopAuto();
   });
 
   function closeLightbox() {
     lightbox.style.display = 'none';
     document.body.style.overflow = '';
+    startAuto();
   }
 
   document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
