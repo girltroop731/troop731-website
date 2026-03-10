@@ -24,6 +24,7 @@ const DB = {
     }
     db.run('PRAGMA foreign_keys = ON');
     this._createSchema();
+    this._migrate();
     this._seedIfEmpty();
     this.save();
     return this;
@@ -146,6 +147,14 @@ const DB = {
         value TEXT
       );
     `);
+  },
+
+  _migrate() {
+    // Add force_password_change column if missing (for databases created before this feature)
+    const cols = this.all("PRAGMA table_info(users)").map(c => c.name);
+    if (!cols.includes('force_password_change')) {
+      this.run('ALTER TABLE users ADD COLUMN force_password_change INTEGER DEFAULT 0');
+    }
   },
 
   _seedIfEmpty() {
