@@ -345,6 +345,8 @@ app.delete('/api/admin/documents/:id', requireAuth, (req, res) => {
 
 // Gallery (with file upload)
 app.post('/api/admin/gallery', requireAuth, upload.single('photo'), (req, res) => {
+  const count = DB.get('SELECT COUNT(*) as c FROM gallery').c;
+  if (count >= 10) return res.status(400).json({ error: 'Maximum 10 photos allowed. Delete one before adding another.' });
   const caption = req.body.caption || '';
   let filename = null;
   let url = null;
