@@ -256,15 +256,65 @@ function renderDocuments(items) {
   </a>`).join('');
 }
 
-/* ---- Gallery ---- */
+/* ---- Gallery Carousel ---- */
 
 function renderGallery(items) {
-  const c = document.getElementById('galleryContainer');
-  if (!items.length) { hide(c); show('noPhotos'); return; }
-  c.innerHTML = items.map(g => {
-    if (g.url) return `<div class="gallery-item"><img src="${escAttr(g.url)}" alt="${escAttr(g.caption || 'Troop photo')}" loading="lazy"></div>`;
-    return `<div class="gallery-item"><div class="gallery-placeholder"><div class="placeholder-icon">📸</div><p>${esc(g.caption || 'Photo')}</p></div></div>`;
-  }).join('');
+  const container = document.getElementById('galleryContainer');
+  const track = document.getElementById('carouselTrack');
+  const dots = document.getElementById('carouselDots');
+  const photos = items.filter(g => g.url).slice(0, 10);
+  if (!photos.length) { hide(container); show('noPhotos'); return; }
+
+  let current = 0;
+
+  track.innerHTML = photos.map((g, i) =>
+    `<div class="carousel-slide${i === 0 ? ' active' : ''}" data-index="${i}">
+      <img src="${escAttr(g.url)}" alt="${escAttr(g.caption || 'Troop photo')}" loading="lazy">
+    </div>`
+  ).join('');
+
+  dots.innerHTML = photos.map((_, i) =>
+    `<button class="carousel-dot${i === 0 ? ' active' : ''}" data-index="${i}" aria-label="Go to photo ${i + 1}"></button>`
+  ).join('');
+
+  function goTo(idx) {
+    current = (idx + photos.length) % photos.length;
+    track.querySelectorAll('.carousel-slide').forEach((s, i) => s.classList.toggle('active', i === current));
+    dots.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === current));
+  }
+
+  document.getElementById('carouselPrev').addEventListener('click', () => goTo(current - 1));
+  document.getElementById('carouselNext').addEventListener('click', () => goTo(current + 1));
+  dots.addEventListener('click', (e) => {
+    if (e.target.dataset.index != null) goTo(+e.target.dataset.index);
+  });
+
+  // Lightbox
+  const lightbox = document.getElementById('photoLightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  const lightboxCaption = document.getElementById('lightboxCaption');
+
+  track.addEventListener('click', (e) => {
+    const slide = e.target.closest('.carousel-slide');
+    if (!slide) return;
+    const photo = photos[+slide.dataset.index];
+    lightboxImg.src = photo.url;
+    lightboxImg.alt = photo.caption || 'Troop photo';
+    lightboxCaption.textContent = photo.caption || '';
+    lightbox.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  });
+
+  function closeLightbox() {
+    lightbox.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+  document.addEventListener('keydown', (e) => {
+    if (lightbox.style.display === 'flex' && e.key === 'Escape') closeLightbox();
+  });
 }
 
 /* ---- Settings ---- */
