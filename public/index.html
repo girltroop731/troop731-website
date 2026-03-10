@@ -138,7 +138,25 @@
         </div>
     </section>
 
-    <section id="resources" class="section section-alt">
+    <section id="gallery" class="section section-alt">
+        <div class="container">
+            <h2 class="section-title">Past Troop Adventures</h2>
+            <div class="gallery-carousel" id="galleryContainer">
+                <button class="carousel-btn carousel-prev" id="carouselPrev" aria-label="Previous photo">&lsaquo;</button>
+                <div class="carousel-track" id="carouselTrack"></div>
+                <button class="carousel-btn carousel-next" id="carouselNext" aria-label="Next photo">&rsaquo;</button>
+            </div>
+            <div class="carousel-dots" id="carouselDots"></div>
+            <p class="empty-state" id="noPhotos" style="display:none;">Photos coming soon!</p>
+        </div>
+    </section>
+    <div class="photo-lightbox" id="photoLightbox" role="dialog" aria-label="Photo viewer" style="display:none;">
+        <button class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
+        <img class="lightbox-img" id="lightboxImg" src="" alt="">
+        <p class="lightbox-caption" id="lightboxCaption"></p>
+    </div>
+
+    <section id="resources" class="section">
         <div class="container">
             <h2 class="section-title">Resources &amp; Links</h2>
             <div class="resources-block">
@@ -156,24 +174,6 @@
             </div>
         </div>
     </section>
-
-    <section id="gallery" class="section">
-        <div class="container">
-            <h2 class="section-title">Past Troop Adventures</h2>
-            <div class="gallery-carousel" id="galleryContainer">
-                <button class="carousel-btn carousel-prev" id="carouselPrev" aria-label="Previous photo">&lsaquo;</button>
-                <div class="carousel-track" id="carouselTrack"></div>
-                <button class="carousel-btn carousel-next" id="carouselNext" aria-label="Next photo">&rsaquo;</button>
-            </div>
-            <div class="carousel-dots" id="carouselDots"></div>
-            <p class="empty-state" id="noPhotos" style="display:none;">Photos coming soon!</p>
-        </div>
-    </section>
-    <div class="photo-lightbox" id="photoLightbox" role="dialog" aria-label="Photo viewer" style="display:none;">
-        <button class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
-        <img class="lightbox-img" id="lightboxImg" src="" alt="">
-        <p class="lightbox-caption" id="lightboxCaption"></p>
-    </div>
 
     <section id="contact" class="section section-alt">
         <div class="container">
