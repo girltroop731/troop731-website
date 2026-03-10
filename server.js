@@ -26,6 +26,7 @@ if (!sessionSecret) {
 // Fix #1: Helmet security headers
 app.use(require('helmet')());
 
+app.set('trust proxy', 1);
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: false, limit: '100kb' }));
 app.use(express.static(path.join(__dirname, 'public')));
