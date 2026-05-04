@@ -2,12 +2,16 @@
 
 ## Domains
 
-- [ ] Register a domain for the Troop 731 site (currently at `troop731.fly.dev`)
-- [ ] Register a domain for Kathryn's site
+- [x] Register `girltroop731.org` (Namecheap, May 2026)
+- [ ] Point `girltroop731.org` to Fly app `troop731`
+  - `fly ips list -a troop731` (allocate shared v4 if needed)
+  - Add A/AAAA records at Namecheap
+  - `fly certs add girltroop731.org -a troop731`
+  - `fly certs add www.girltroop731.org -a troop731`
+- [ ] (Later) Register `clemmonsscouts.org` for landing-page hub
+  - Static page already drafted in a separate workspace
 
 ## Notes
 
-When the troop domain is registered:
-1. Add it as a custom domain in Fly.io: `fly certs add <domain> -a troop731`
-2. Update DNS A/AAAA records to point to Fly's edge IPs
-3. Wait for cert provisioning (LetsEncrypt, ~minutes)
+- Troop site currently lives at `https://troop731.fly.dev`
+- Boys troop has no web presence yet — hub page will skip them until they do
