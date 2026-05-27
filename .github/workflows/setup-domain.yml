@@ -1,0 +1,51 @@
+name: Setup custom domain
+
+on:
+  workflow_dispatch:
+    inputs:
+      domain:
+        description: 'Domain to add (e.g., girltroop731.org)'
+        required: true
+        default: 'girltroop731.org'
+      app:
+        description: 'Fly app name'
+        required: true
+        default: 'troop731'
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: superfly/flyctl-actions/setup-flyctl@v1.4
+
+      - name: Show current IPs
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: flyctl ips list -a ${{ inputs.app }}
+
+      - name: Allocate shared IPv4 (idempotent)
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: flyctl ips allocate-v4 --shared -a ${{ inputs.app }} || true
+
+      - name: Add cert for apex
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: flyctl certs add ${{ inputs.domain }} -a ${{ inputs.app }} || true
+
+      - name: Add cert for www
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: flyctl certs add www.${{ inputs.domain }} -a ${{ inputs.app }} || true
+
+      - name: Show final IPs (use these for DNS)
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: flyctl ips list -a ${{ inputs.app }}
+
+      - name: Show cert status
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          flyctl certs show ${{ inputs.domain }} -a ${{ inputs.app }} || true
+          flyctl certs show www.${{ inputs.domain }} -a ${{ inputs.app }} || true
