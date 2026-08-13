@@ -101,16 +101,27 @@
     section{padding:44px 0;}
   }
 
-  .lang-switch{position:absolute; top:14px; right:20px; z-index:20; display:flex; gap:6px;
-    font-family:var(--sans); font-size:.82rem;}
+  .pg-nav{position:sticky; top:0; z-index:30; background:rgba(18,48,31,.94); backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px); padding:10px 22px; display:flex; justify-content:space-between;
+    align-items:center; border-bottom:1px solid rgba(197,166,90,.25); font-family:var(--sans);}
+  .pg-home{color:#c5a65a; text-decoration:none; font-weight:700; font-family:var(--serif);
+    font-size:1.05rem; letter-spacing:1.4px; display:inline-flex; align-items:center; gap:8px;}
+  .pg-home:hover{color:#d8ba6e;}
+  .pg-home .em{font-size:1.2rem;}
+  .lang-switch{display:flex; gap:6px; font-size:.82rem;}
   .lang-switch a{color:#c5a65a; text-decoration:none; padding:6px 14px; border:1px solid rgba(197,166,90,.55);
     border-radius:20px; letter-spacing:1px; font-weight:600; transition:all .15s;}
   .lang-switch a:hover{background:rgba(197,166,90,.12);}
   .lang-switch a.active{background:var(--gold); color:var(--forest); border-color:var(--gold);}
-  @media(max-width:640px){ .lang-switch{top:10px; right:12px; font-size:.72rem;} .lang-switch a{padding:5px 10px;} }
+  @media(max-width:640px){
+    .pg-nav{padding:8px 14px;}
+    .pg-home{font-size:.95rem; letter-spacing:1px;}
+    .lang-switch{font-size:.72rem;} .lang-switch a{padding:5px 10px;}
+  }
 </style>
 </head>
 <body>
+<nav class="pg-nav" aria-label="Parents guide navigation"><a href="/" class="pg-home" aria-label="Back to home page"><span class="em">⚜</span>Troop 731g</a><div class="lang-switch"><a href="/parents" class="active">English</a><a href="/parents/zh" class="" lang="zh-Hans">中文</a></div></nav>
 
 <!-- shared tree symbols -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -133,8 +144,7 @@
 </defs></svg>
 
 <!-- ============ HERO ============ -->
-<header class="hero" style="position:relative">
-  <div class="lang-switch"><a href="/parents" class="active">English</a><a href="/parents/zh" class="" lang="zh-Hans">中文</a></div>
+<header class="hero">
   <div class="wrap">
     <svg class="compass" viewBox="0 0 60 60">
       <circle cx="30" cy="30" r="22" fill="none" stroke="#c5a65a" stroke-width="1.2"/>
