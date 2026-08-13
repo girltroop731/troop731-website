@@ -462,6 +462,13 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
+app.get(['/parents', '/parents-guide'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'parents-guide.html'));
+});
+app.get(['/parents/zh', '/parents-guide/zh'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'parents-guide-zh.html'));
+});
+
 // Fix #5: Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
